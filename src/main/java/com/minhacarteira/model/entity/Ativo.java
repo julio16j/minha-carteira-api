@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Ativo {
 
-    @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -32,9 +32,11 @@ public class Ativo {
 
     @Column(nullable = false)
     private Double precoMedio;
-
-    private String nota;
-
+    
+    @Column(nullable = false)
+    private Integer nota;
+    
+    @Column(nullable = false)
     private Double dividendYield;
 
     @Enumerated(EnumType.STRING)

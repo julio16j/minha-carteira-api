@@ -1,5 +1,6 @@
 package com.minhacarteira.controller;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,28 +15,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.minhacarteira.model.dto.CaixaDTO;
-import com.minhacarteira.model.entity.Caixa;
-import com.minhacarteira.service.CaixaService;
+import com.minhacarteira.model.dto.AtivoDTO;
+import com.minhacarteira.model.dto.CalculoAporteDTO;
+import com.minhacarteira.model.entity.Ativo;
+import com.minhacarteira.model.enums.TipoAtivo;
+import com.minhacarteira.service.AtivoService;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/caixa")
-public class CaixaController {
+@RequestMapping("/api/ativo")
+public class AtivoController {
 
-    private final CaixaService caixaService;
+    private final AtivoService ativoService;
 
     @Autowired
-    public CaixaController(CaixaService caixaService) {
-        this.caixaService = caixaService;
+    public AtivoController(AtivoService ativoService) {
+        this.ativoService = ativoService;
     }
 
     @GetMapping
     public ResponseEntity<?> listarTodos() {
         try {
-            List<Caixa> caixas = caixaService.listarTodos();
-            return ResponseEntity.ok(caixas);
+            List<Ativo> ativos = ativoService.listarTodos();
+            return ResponseEntity.ok(ativos);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Erro interno no servidor");
         }
@@ -44,8 +47,8 @@ public class CaixaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         try {
-        	Caixa caixa = caixaService.buscarPorId(id);
-            return ResponseEntity.ok(caixa);
+            Ativo ativo = ativoService.buscarPorId(id);
+            return ResponseEntity.ok(ativo);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         } catch (Exception e) {
@@ -54,20 +57,20 @@ public class CaixaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> salvar(@Valid @RequestBody CaixaDTO caixaDTO) {
+    public ResponseEntity<?> salvar(@Valid @RequestBody AtivoDTO ativoDTO) {
         try {
-            Caixa caixaSalvo = caixaService.salvar(caixaDTO);
-            return ResponseEntity.ok(caixaSalvo);
+            Ativo ativoSalvo = ativoService.salvar(ativoDTO);
+            return ResponseEntity.ok(ativoSalvo);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Erro interno no servidor");
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @Valid @RequestBody CaixaDTO caixaDTO) {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @Valid @RequestBody AtivoDTO ativoDTO) {
         try {
-            Caixa caixaAtualizado = caixaService.atualizar(id, caixaDTO);
-            return ResponseEntity.ok(caixaAtualizado);
+            Ativo ativoAtualizado = ativoService.atualizar(id, ativoDTO);
+            return ResponseEntity.ok(ativoAtualizado);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         } catch (Exception e) {
@@ -78,8 +81,26 @@ public class CaixaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> excluir(@PathVariable Long id) {
         try {
-            caixaService.excluir(id);
+            ativoService.excluir(id);
             return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno no servidor");
+        }
+    }
+    
+    @GetMapping("/calcular-aporte/{valorAporte}/{tipoAtivo}")
+    public ResponseEntity<?> calcularAporte(
+            @PathVariable Double valorAporte,
+            @PathVariable TipoAtivo tipoAtivo) {
+        try {
+            List<CalculoAporteDTO> resultado = ativoService.calcularAporte(valorAporte, tipoAtivo);
+            if (resultado != null && !resultado.isEmpty()) {
+                return ResponseEntity.ok(resultado);
+            } else {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Erro interno no servidor");
         }

@@ -3,7 +3,7 @@ package com.minhacarteira.model.dto;
 import com.minhacarteira.model.entity.Ativo;
 import com.minhacarteira.model.enums.TipoAtivo;
 
-public record AtivoPrecoAtualizadoDTO(Long id, String ticker, Integer quantidade, Double precoMedio, Double preco, Integer Nota,
+public record AtivoPrecoAtualizadoDTO(Long id, String ticker, Integer quantidade, Double precoMedio, Double preco, Integer nota,
 		TipoAtivo tipoAtivo) {
 	public static AtivoPrecoAtualizadoDTO fromEntity(Ativo ativo, Double novoPreco) {
 		return new AtivoPrecoAtualizadoDTO(ativo.getId(), ativo.getTicker(), ativo.getQuantidade(), ativo.getPrecoMedio(),

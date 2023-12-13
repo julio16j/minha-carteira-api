@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.minhacarteira.model.dto.AtivoDTO;
 import com.minhacarteira.model.dto.AtivoPrecoAtualizadoDTO;
 import com.minhacarteira.model.dto.CalculoAporteDTO;
+import com.minhacarteira.model.dto.ResultadoAtivoDTO;
 import com.minhacarteira.model.entity.Ativo;
 import com.minhacarteira.model.enums.TipoAtivo;
 import com.minhacarteira.repository.AtivoRepository;
@@ -28,8 +29,13 @@ public class AtivoService {
 		this.bolsaService = bolsaService;
 	}
 
-	public List<Ativo> listarTodos() {
-		return ativoRepository.findAll();
+	public List<ResultadoAtivoDTO> listarTodos() {
+		List<Ativo> ativos = ativoRepository.findAll();
+		return mapToResultadoAtivoDTO(ativos);
+	}
+
+	private List<ResultadoAtivoDTO> mapToResultadoAtivoDTO(List<Ativo> ativos) {
+		return ativos.stream().map(ResultadoAtivoDTO::fromEntity).toList();
 	}
 
 	public Ativo buscarPorId(Long id) {
@@ -44,13 +50,12 @@ public class AtivoService {
 
 	public Ativo atualizar(Long id, AtivoDTO ativoDTO) {
 		Ativo ativoExistente = buscarPorId(id);
-
-		// Atualiza os campos do ativo existente com base no DTO
+		
 		ativoExistente.setTicker(ativoDTO.ticker());
 		ativoExistente.setQuantidade(ativoDTO.quantidade());
 		ativoExistente.setPrecoMedio(ativoDTO.precoMedio());
 		ativoExistente.setNota(ativoDTO.nota());
-		ativoExistente.setDividendYield(ativoDTO.dividendYield());
+		ativoExistente.setYield(ativoDTO.yield());
 		ativoExistente.setSetor(ativoDTO.setor());
 		ativoExistente.setTipoAtivo(ativoDTO.tipoAtivo());
 
@@ -61,8 +66,8 @@ public class AtivoService {
 		ativoRepository.deleteById(id);
 	}
 
-	public List<Ativo> listarPorTipo(TipoAtivo tipoAtivo) {
-		return ativoRepository.findByTipoAtivo(tipoAtivo);
+	public List<ResultadoAtivoDTO> listarPorTipo(TipoAtivo tipoAtivo) {
+		return mapToResultadoAtivoDTO(ativoRepository.findByTipoAtivo(tipoAtivo));
 	}
 
 	public List<CalculoAporteDTO> calcularAporte(Double valorAporte, TipoAtivo tipoAtivo) {
@@ -86,10 +91,10 @@ public class AtivoService {
 		final Integer somaNotas = somaNotasAux;
 		final Double somaValor = somaValorAux;
 		return ativosAtualizados.stream().map(ativo -> {
-			if (ativo.Nota() == null) {
+			if (ativo.nota() == null) {
 				return null;
 			}
-			Double percentualNota = (double) ativo.Nota() / somaNotas;
+			Double percentualNota = (double) ativo.nota() / somaNotas;
 			Double precoAtualAtivo = bolsaService.obterPrecoAtivo(ativo.ticker());
 			Double valorIdeal = percentualNota * (valorAporte + somaValor);
 			Double valorAtual = ativo.quantidade() * precoAtualAtivo;

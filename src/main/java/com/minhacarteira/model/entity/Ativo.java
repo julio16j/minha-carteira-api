@@ -10,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,8 @@ import lombok.NoArgsConstructor;
 public class Ativo {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ativo_seq")
+    @SequenceGenerator(name = "ativo_seq", sequenceName = "ativo_seq", allocationSize = 1)
     private Long id;
 
     @Column(nullable = false)
@@ -37,12 +39,11 @@ public class Ativo {
     private Integer nota;
     
     @Column(nullable = false)
-    private Double dividendYield;
+    private Double yield;
 
     @Enumerated(EnumType.STRING)
     private Setor setor;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_ativo")
     private TipoAtivo tipoAtivo;
 }

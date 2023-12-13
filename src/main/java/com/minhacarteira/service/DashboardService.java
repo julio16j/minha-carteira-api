@@ -35,8 +35,8 @@ public class DashboardService {
 
 	private void computarAtivos(DashboardDTO dashboardDTO) {
 		ativoService.listarTodos().stream().forEach(ativo -> {
-			AtivoPrecoAtualizadoDTO ativoAtualizado = AtivoPrecoAtualizadoDTO.fromEntity(ativo,
-					bolsaService.obterPrecoAtivo(ativo.getTicker()));
+			AtivoPrecoAtualizadoDTO ativoAtualizado = AtivoPrecoAtualizadoDTO.fromEntity(ativo.toEntity(),
+					bolsaService.obterPrecoAtivo(ativo.ticker()));
 			dashboardDTO.setTotalAplicado(dashboardDTO.getTotalAplicado() + (ativoAtualizado.quantidade() * ativoAtualizado.precoMedio()));
 			dashboardDTO.setTotalBruto(dashboardDTO.getTotalBruto() + (ativoAtualizado.quantidade() *  ativoAtualizado.preco()));
 			if (TipoAtivo.ACAO.equals(ativoAtualizado.tipoAtivo())) {

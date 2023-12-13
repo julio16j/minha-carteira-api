@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.minhacarteira.model.dto.AtivoDTO;
 import com.minhacarteira.model.dto.CalculoAporteDTO;
+import com.minhacarteira.model.dto.ResultadoAtivoDTO;
 import com.minhacarteira.model.entity.Ativo;
 import com.minhacarteira.model.enums.TipoAtivo;
 import com.minhacarteira.service.AtivoService;
@@ -37,7 +38,17 @@ public class AtivoController {
     @GetMapping
     public ResponseEntity<?> listarTodos() {
         try {
-            List<Ativo> ativos = ativoService.listarTodos();
+            List<ResultadoAtivoDTO> ativos = ativoService.listarTodos();
+            return ResponseEntity.ok(ativos);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno no servidor");
+        }
+    }
+    
+    @GetMapping("/tipo-ativo/{tipoAtivo}")
+    public ResponseEntity<?> listarPorTipoAtivo(@PathVariable TipoAtivo tipoAtivo) {
+        try {
+            List<ResultadoAtivoDTO> ativos = ativoService.listarPorTipo(tipoAtivo);
             return ResponseEntity.ok(ativos);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Erro interno no servidor");
@@ -48,7 +59,7 @@ public class AtivoController {
     public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         try {
             Ativo ativo = ativoService.buscarPorId(id);
-            return ResponseEntity.ok(ativo);
+            return ResponseEntity.ok(ResultadoAtivoDTO.fromEntity(ativo));
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         } catch (Exception e) {

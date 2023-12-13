@@ -3,7 +3,7 @@ package com.minhacarteira.model.dto;
 public record CalculoAporteDTO(
         Long id,
         String ticker,
-        Integer novaQuantidade,
+        Integer quantidadeNova,
         Double preco,
         Double total
 ) {}

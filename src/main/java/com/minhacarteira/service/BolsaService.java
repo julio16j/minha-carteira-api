@@ -1,5 +1,7 @@
 package com.minhacarteira.service;
 
+import java.util.Properties;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -23,7 +25,8 @@ public class BolsaService {
     @Value("${brapi.token}")
     private String token;
 
-    public BolsaService(WebClient.Builder webClientBuilder) {
+    public BolsaService(WebClient.Builder webClientBuilder, @Value("${brapi.base.url}") String baseUrl) {
+    	this.baseUrl = baseUrl;
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
     }
 
@@ -34,7 +37,7 @@ public class BolsaService {
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> {
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Erro ao obter preço do ativo"));
+                            "Erro ao obter preço do ativo " + ticker));
                 })
                 .bodyToMono(ResponseWrapper.class)
                 .flatMap(responseWrapper -> {
@@ -43,7 +46,7 @@ public class BolsaService {
                         return Mono.just(firstResult.regularMarketPrice());
                     } else {
                         return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        		"Erro ao obter preço do ativo"));
+                        		"Erro ao obter preço do ativo: " + ticker));
                     }
                 }).block();
     }

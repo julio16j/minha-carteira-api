@@ -26,7 +26,10 @@ public class DashboardService {
 		computarAtivos(dashboardDTO);
 		computarCaixas(dashboardDTO);
 		dashboardDTO.setLucroNominal(dashboardDTO.getTotalBruto() - dashboardDTO.getTotalAplicado());
-		dashboardDTO.setLucroPercentual((dashboardDTO.getTotalBruto() - dashboardDTO.getTotalAplicado()) / dashboardDTO.getTotalAplicado());
+		if (dashboardDTO.getTotalAplicado() > 0) {
+			dashboardDTO.setLucroPercentual(
+					(dashboardDTO.getTotalBruto() - dashboardDTO.getTotalAplicado()) / dashboardDTO.getTotalAplicado());
+		}
 		return dashboardDTO;
 	}
 
@@ -34,16 +37,16 @@ public class DashboardService {
 		ativoService.listarTodos().stream().forEach(ativo -> {
 			AtivoPrecoAtualizadoDTO ativoAtualizado = AtivoPrecoAtualizadoDTO.fromEntity(ativo,
 					bolsaService.obterPrecoAtivo(ativo.getTicker()));
-			dashboardDTO.setTotalAplicado(dashboardDTO.getTotalAplicado() + ativoAtualizado.precoMedio());
-			dashboardDTO.setTotalBruto(dashboardDTO.getTotalBruto() + ativoAtualizado.preco());
+			dashboardDTO.setTotalAplicado(dashboardDTO.getTotalAplicado() + (ativoAtualizado.quantidade() * ativoAtualizado.precoMedio()));
+			dashboardDTO.setTotalBruto(dashboardDTO.getTotalBruto() + (ativoAtualizado.quantidade() *  ativoAtualizado.preco()));
 			if (TipoAtivo.ACAO.equals(ativoAtualizado.tipoAtivo())) {
-				dashboardDTO.setTotalAcoes(dashboardDTO.getTotalAcoes() + ativoAtualizado.preco());
+				dashboardDTO.setTotalAcoes(dashboardDTO.getTotalAcoes() + (ativoAtualizado.quantidade() * ativoAtualizado.preco()));
 			} else {
-				dashboardDTO.setTotalFiis(dashboardDTO.getTotalFiis() + ativoAtualizado.preco());
+				dashboardDTO.setTotalFiis(dashboardDTO.getTotalFiis() + (ativoAtualizado.quantidade() * ativoAtualizado.preco()));
 			}
 		});
 	}
-	
+
 	private void computarCaixas(DashboardDTO dashboardDTO) {
 		caixaService.listarTodos().stream().forEach(caixa -> {
 			dashboardDTO.setTotalAplicado(dashboardDTO.getTotalAplicado() + caixa.getValor());

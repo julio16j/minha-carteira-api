@@ -22,7 +22,7 @@ public class DashboardController {
     }
 
     @GetMapping
-    public ResponseEntity<?> listarTodos() {
+    public ResponseEntity<?> obterDashboardDTO() {
         try {
             DashboardDTO dashboardDTO = dashboardService.obterDashboardDTO();
             return ResponseEntity.ok(dashboardDTO);

@@ -12,10 +12,13 @@ import org.springframework.web.server.ResponseStatusException;
 import com.minhacarteira.model.dto.AtivoDTO;
 import com.minhacarteira.model.dto.AtivoPrecoAtualizadoDTO;
 import com.minhacarteira.model.dto.CalculoAporteDTO;
+import com.minhacarteira.model.dto.NovoAporteDTO;
 import com.minhacarteira.model.dto.ResultadoAtivoDTO;
 import com.minhacarteira.model.entity.Ativo;
 import com.minhacarteira.model.enums.TipoAtivo;
 import com.minhacarteira.repository.AtivoRepository;
+
+import jakarta.validation.Valid;
 
 @Service
 public class AtivoService {
@@ -103,5 +106,16 @@ public class AtivoService {
 
 			return new CalculoAporteDTO(ativo.id(), ativo.ticker(), novaQuantidade, ativo.preco(), total);
 		}).filter(calculoAporteDTO -> calculoAporteDTO != null).collect(Collectors.toList());
+	}
+
+	public void novoAporte(@Valid NovoAporteDTO novoAporteDTO) {
+		Ativo ativoExistente = buscarPorId(novoAporteDTO.id());
+		Integer novaQuantidade = ativoExistente.getQuantidade() + novoAporteDTO.quantidade();
+		double aporte = novoAporteDTO.preco() * novoAporteDTO.quantidade();
+		Double novoPrecoMedio = ((ativoExistente.getPrecoMedio() * ativoExistente.getQuantidade()) + aporte)/novaQuantidade;
+		ativoExistente.setQuantidade(novaQuantidade);
+		ativoExistente.setPrecoMedio(novoPrecoMedio);
+		ativoRepository.save(ativoExistente);
+		
 	}
 }

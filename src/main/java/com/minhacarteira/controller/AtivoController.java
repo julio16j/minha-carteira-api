@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.minhacarteira.model.dto.AtivoDTO;
 import com.minhacarteira.model.dto.CalculoAporteDTO;
+import com.minhacarteira.model.dto.NovoAporteDTO;
 import com.minhacarteira.model.dto.ResultadoAtivoDTO;
 import com.minhacarteira.model.entity.Ativo;
 import com.minhacarteira.model.enums.TipoAtivo;
@@ -82,6 +83,18 @@ public class AtivoController {
         try {
             Ativo ativoAtualizado = ativoService.atualizar(id, ativoDTO);
             return ResponseEntity.ok(ativoAtualizado);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno no servidor");
+        }
+    }
+    
+    @PutMapping("/novo-aporte")
+    public ResponseEntity<?> novoAporte(@Valid @RequestBody NovoAporteDTO novoAporteDTO) {
+        try {
+            ativoService.novoAporte(novoAporteDTO);
+            return ResponseEntity.noContent().build();
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         } catch (Exception e) {

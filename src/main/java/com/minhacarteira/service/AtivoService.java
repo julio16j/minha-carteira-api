@@ -105,7 +105,7 @@ public class AtivoService {
 			Double total = novaQuantidade * ativo.preco();
 
 			return new CalculoAporteDTO(ativo.id(), ativo.ticker(), novaQuantidade, ativo.preco(), total);
-		}).filter(calculoAporteDTO -> calculoAporteDTO != null).collect(Collectors.toList());
+		}).filter(calculoAporteDTO -> calculoAporteDTO != null  && calculoAporteDTO.quantidadeNova() > 0).collect(Collectors.toList());
 	}
 
 	public void novoAporte(@Valid NovoAporteDTO novoAporteDTO) {
